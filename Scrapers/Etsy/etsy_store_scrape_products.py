@@ -267,9 +267,7 @@ for url in links:
 
         # -------------------Listing Images-------------------
         try:
-            image_container = listing_container.find_element(
-                "xpath", '//div[@data-component="listing-page-image-carousel"]'
-            )
+            image_container = listing_container.find_element("xpath", '//div[@data-component="listing-page-image-carousel"]')
             image_elements = image_container.find_elements(By.TAG_NAME, "img")
             image_links = []
             for image in image_elements:
@@ -280,10 +278,10 @@ for url in links:
                 modified_link = raw_link.replace("_75x75", "_1200x1200")
 
                 image_links.append(modified_link)
-            data["images"].append(image_links)
+            data["images"] = ",".join(image_links)
         except:
-            data["images"].append([])
             print("failed to get images")
+
 
         print("done scraping listing title: ", data["title"][-1])
 
