@@ -9,6 +9,14 @@ import csv
 from selenium.webdriver.common.by import By
 import pandas as pd 
 
+import os
+
+# Get the current script's directory
+script_directory = os.path.dirname(os.path.abspath(__file__))
+
+# Change the working directory to the script's directory
+os.chdir(script_directory)
+
 def clean_url(url):
     return re.sub(r'_\d+x\d+_crop_center', '', url)
 
@@ -69,13 +77,14 @@ with open('./DallasFurnitureLinks.csv', 'r') as file:
 
             # RETAIL PRICE
             try: 
-                retail_price = price_container.find_element("xpath", './/span[@data-price-compare]')
+                retail_price_container = price_container.find_element("xpath", './/div[@data-price-compare-container]')
+                retail_price = retail_price_container.find_element("xpath", './/span[@data-price-compare]')
                 item_data['retail_price'] = retail_price.text
             except NoSuchElementException:
                 item_data['retail_price'] = ''
 
             # Get the condition ---------------
-            item_data['condition'] = "Excellent"
+            item_data['condition'] = "Very Good"
 
             # Get the description ---------------
             try:

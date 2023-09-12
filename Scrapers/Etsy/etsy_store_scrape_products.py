@@ -13,6 +13,13 @@ import pandas as pd
 import time
 
 from selenium.webdriver.common.by import By
+import os
+
+# Get the current script's directory
+script_directory = os.path.dirname(os.path.abspath(__file__))
+
+# Change the working directory to the script's directory
+os.chdir(script_directory)
 
 root = "https://www.etsy.com/shop"
 profile = "/ElleWoodworthy"
@@ -52,7 +59,7 @@ for page in range(
     driver.get(website)
 
     # Sleep 15 sec
-    time.sleep(3)
+    time.sleep(15)
 
     WebDriverWait(driver, 10).until(
         EC.presence_of_element_located(

@@ -2,6 +2,13 @@ from bs4 import BeautifulSoup
 import requests
 from bs4 import NavigableString
 import pandas as pd
+import os
+
+# Get the current script's directory
+script_directory = os.path.dirname(os.path.abspath(__file__))
+
+# Change the working directory to the script's directory
+os.chdir(script_directory)
 
 titles = []
 descriptions = []
@@ -47,9 +54,9 @@ for i in range(1, 17):
         brands.append(product_info.find('span', itemprop='name').text if product_info.find('span', itemprop='name') else 'N/A')
 
         # Description, SKU, Category
-        description = 'N/A'
-        sku = 'N/A'
-        category = 'N/A'
+        description = ''
+        sku = ''
+        category = ''
 
         description_span = product_info.find('span', itemprop='description')
         if description_span:
@@ -90,9 +97,9 @@ for i in range(1, 17):
         images.append(image_string)
 
         # Dimensions
-        width = 'N/A'
-        depth = 'N/A'
-        height = 'N/A'
+        width = ''
+        depth = ''
+        height = ''
 
         if table:
             # find all 'tr' tags within the table
@@ -122,16 +129,16 @@ for i in range(1, 17):
 
 # Create a dictionary where keys are column names and values are the lists of data
 data = {
-    'Title': titles,
-    'Description': descriptions,
-    'Price': prices,
-    'SKU': skus,
-    'Images': images,
-    'Width': widths,
-    'Depth': depths,
-    'Height': heights,
-    'Category': categories,
-    'Brand': brands
+    'title': titles,
+    'description': descriptions,
+    'price': prices,
+    'sku': skus,
+    'images': images,
+    'width': widths,
+    'depth': depths,
+    'height': heights,
+    'category': categories,
+    'brand': brands
 }
 
 # Create a pandas dataframe from the dictionary

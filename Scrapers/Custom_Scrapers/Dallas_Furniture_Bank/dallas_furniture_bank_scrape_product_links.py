@@ -9,9 +9,15 @@ from selenium.common.exceptions import NoSuchElementException
 
 import pandas as pd
 
-import time
-import re
 import csv
+
+import os
+
+# Get the current script's directory
+script_directory = os.path.dirname(os.path.abspath(__file__))
+
+# Change the working directory to the script's directory
+os.chdir(script_directory)
 
 from selenium.webdriver.common.by import By
 
@@ -22,9 +28,6 @@ website_template = root + "&page={page}"
 driver = webdriver.Chrome()  # Initialize the webdriver outside of the loop
 
 links = []  # Initialize the links list outside the loop
-
-
-data = {'title':[], 'price':[], 'condition':[], 'width':[], 'height':[], 'depth':[], 'description':[], 'tags':[], 'images':[]}
 
 for page in range(1, 4):  
     website = website_template.format(page=page)
@@ -39,7 +42,7 @@ for page in range(1, 4):
 
     for item in all_items:
         links.append(item.get_attribute('href'))
-        print("done scraping link" + item.get_attribute('href'))
+        print("done scraping link " + item.get_attribute('href'))
 
 # Write the links to a CSV file
 with open('DallasFurnitureLinks.csv', 'w', newline='') as file:
