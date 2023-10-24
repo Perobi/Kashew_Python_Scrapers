@@ -35,12 +35,12 @@ data = {'title':[], 'sku':[], 'price':[], 'category':[], 'condition':[], 'width'
 
 
 
-for page in range(1, 9):  # We start at 1 and go up to (but not including) 9, so this gives us 1-8
+for page in range(1, 10):  # We start at 1 and go up to (but not including) 9, so this gives us 1-8
     website = website_template.format(page=page)
     driver.get(website)
 
     # Sleep 15 sec
-    time.sleep(15)
+    time.sleep(2)
     
     WebDriverWait(driver, 10).until(EC.presence_of_element_located(("xpath", '//div[@class="wt-pr-xs-0 wt-pl-xs-0 shop-home-wider-items wt-pb-xs-5"]')))
     main_container = driver.find_element("xpath", '//div[@class="wt-pr-xs-0 wt-pl-xs-0 shop-home-wider-items wt-pb-xs-5"]')    
@@ -78,7 +78,10 @@ for url in links:
         # -------------------Listing Price-------------------
         try:
             price_element = listing_container.find_element("xpath",'//div[@data-buy-box-region="price"]')
-            price_el = price_element.find_element("xpath",'//p[@class="wt-text-title-03 wt-mr-xs-1 "]').text
+            try: 
+                price_el = price_element.find_element("xpath",'//p[@class="wt-text-title-largest wt-mr-xs-1 "]').text
+            except: 
+                price_el = price_element.find_element("xpath",'//p[@class="wt-text-title-largest wt-mr-xs-1 wt-text-slime"]').text
             currency_value = price_el.split("\n")[1][1:]
             data['price'].append(currency_value)
         except:
@@ -95,7 +98,7 @@ for url in links:
             
             # Get the last 'li' element and its text
             last_li = li_elements[-1]
-            last_li_text = last_li.text
+            last_li_text = last_li.find_element('xpath', "./a").text
             data['category'].append(last_li_text)  
             print("category: ", data['category'][-1])              
         except:
@@ -104,14 +107,16 @@ for url in links:
 
 
         # -------------------Listing Condition-------------------
-        data['condition'].append("Excellent")
+        data['condition'].append("Very Good")
 
         # -------------------Listing Dimensions-------------------
         try:
-            dimensions_box = listing_container.find_element("xpath",'//div[@class="wt-display-flex-xs"]')
-            dimensions = dimensions_box.find_elements("xpath",'.//div[@class="wt-ml-xs-2"]')
+            dimensions_box = listing_container.find_element("xpath",'//ul[@class="wt-block-grid-xs-1 wt-text-body-01 show-icons wt-mt-xs-1 wt-pl-xs-0 wt-mb-xs-3"]')
+            dimensions = dimensions_box.find_element("xpath",'./li[3]')
+            dadm = dimensions.find_element("xpath",'./div[2]')
+            dimensions_divs = dadm.find_elements("xpath",'./div[@class="wt-ml-xs-1"]')
             width, height, depth = "", "", ""
-            for dim in dimensions:
+            for dim in dimensions_divs:
                 try:
                     dimension_name = dim.text.split(":")[0].strip().lower()
                     dimension_value = float(dim.text.split(":")[1].strip().split(" ")[0])
@@ -127,6 +132,7 @@ for url in links:
             data['width'].append(width)
             data['height'].append(height)
             data['depth'].append(depth)
+            print("dimensions: ", data['width'][-1], data['height'][-1], data['depth'][-1])
         except:
             data['width'].append("")
             data['height'].append("")
