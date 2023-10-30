@@ -18,7 +18,7 @@ except ModuleNotFoundError:
     from urllib3.util.retry import Retry
     from urllib.parse import urlparse
     from bs4 import BeautifulSoup
-profile = "iridium"
+profile = "vintagelafurniture"
 session = requests.Session()
 retry = Retry(connect=3, backoff_factor=0.5)
 adapter = HTTPAdapter(max_retries=retry)
@@ -36,6 +36,7 @@ description = []
 width = []
 height = []
 depth = []
+location = []
 brand_name = []
 imgs_urls = []
 it = 1
@@ -58,7 +59,9 @@ while True:
         if not scripts:  # Check if the list is empty
             print(f"No script tag found at URL: {url}. Skipping...")
             continue  # Skip the rest of the code in this loop iteration and continue with the next URL
-
+        
+        # with open('response.html', 'w', encoding='utf-8') as file:
+        #     file.write(response2.text)
 
         script = scripts[0].string.strip()
         data = json.loads(script)
@@ -104,10 +107,28 @@ while True:
             previous_price.append(p_price)
         except:
             previous_price.append("")
+
         categories = soup2.select(
             "div.quick-buttons.js-quick-buttons > div")[0]['data-taxonomy'].split("/")
         category = categories[0]
         main_category.append(category)
+
+        location_element = soup2.select_one("span.js-product-ships-from")
+        if location_element:
+            loc_text = location_element.get_text(strip=True)
+            # Extracting text after "from".
+            from_index = loc_text.find("from")
+            if from_index != -1:  # Making sure "from" is in the string
+                loc = loc_text[from_index + len("from "):]  # Slice the string from "from " onwards
+                location.append(loc)
+                print(f"Location: {loc}")
+            else:
+                location.append("")  # In case there's no "from" in the string, which is unexpected
+                print(f"Unexpected location format: {loc_text}. URL: {url}")
+        else:
+            location.append("")
+            print(f"No location for this item. URL: {url}")  # Print the URL for manual inspection
+
         try:
             s_category = categories[1]
             sub_category.append(s_category)
@@ -120,10 +141,10 @@ while True:
             url_i = url_i['src'].replace(img_url.query, "")[:-1]
             imgs_url.append(url_i)
         imgs_urls.append(imgs_url)
-        print(f"Scraped {url} -- {data['name']}")
+        print(f"Scraped -- {data['name']}")
 popularity_data = {'sku': sku_list,'title': title, 'description': description, 'price': current_price, "retail_price": previous_price, "images": imgs_urls,
-                   "category": main_category, "sub_category": sub_category, "brand": brand_name, "width": width, "height": height, "depth": depth}
+                   "category": main_category, "sub_category": sub_category, "brand": brand_name, "width": width, "height": height, "depth": depth, "location": location}
 dfPOP = pd.DataFrame(popularity_data, columns=['sku','title', 'description', 'price', "retail_price",
-                     "images", "category", "sub_category", "brand", "width", "height", "depth"])
+                     "images", "category", "sub_category", "brand", "width", "height", "depth", "location"])
 dfPOP.to_excel(f'{profile}.xlsx', index=False, header=True)
 print("Done!")
