@@ -11,11 +11,11 @@ import pandas as pd
 
 import os
 
-# Get the current script's directory
-script_directory = os.path.dirname(os.path.abspath(__file__))
 
-# Change the working directory to the script's directory
-os.chdir(script_directory)
+directory_path = '/Users/perobiora/Desktop/Kashew_Python_Scrapers/Output/'
+filename = 'Dallas_Furniture_Bank.csv'
+
+full_path = directory_path + filename
 
 def clean_url(url):
     return re.sub(r'_\d+x\d+_crop_center', '', url)
@@ -37,7 +37,7 @@ data = {
 }
 
 # Open the CSV file
-with open('./DallasFurnitureLinks.csv', 'r') as file:
+with open('/Users/perobiora/Desktop/Kashew_Python_Scrapers/Output/Dallas_Furniture_Bank_Links.csv', 'r') as file:
     # Create a CSV reader
     reader = csv.reader(file)
     # Loop through each row in the CSV
@@ -71,7 +71,7 @@ with open('./DallasFurnitureLinks.csv', 'r') as file:
             try: 
                 price_container = product_container.find_element("xpath", './/div[@data-product-pricing]')
                 price = price_container.find_element("xpath", './/span[@data-price]').text
-            except NoSuchElementException:
+            except:
                 price = ''
             item_data['price'] = price
 
@@ -80,7 +80,7 @@ with open('./DallasFurnitureLinks.csv', 'r') as file:
                 retail_price_container = price_container.find_element("xpath", './/div[@data-price-compare-container]')
                 retail_price = retail_price_container.find_element("xpath", './/span[@data-price-compare]')
                 item_data['retail_price'] = retail_price.text
-            except NoSuchElementException:
+            except:
                 item_data['retail_price'] = ''
 
             # Get the condition ---------------
@@ -159,11 +159,9 @@ with open('./DallasFurnitureLinks.csv', 'r') as file:
             print(f'TimeoutException occurred for URL: {link}')
             continue
 
-# Once the loop is done, convert your dictionary into a pandas DataFrame
 df = pd.DataFrame(data)
 
-# Finally, write your DataFrame to a CSV file
-df.to_csv('dallas_furniture_bank.csv', index=False)
+df.to_csv(full_path, index=False)
 print("Done")
 
 driver.quit()

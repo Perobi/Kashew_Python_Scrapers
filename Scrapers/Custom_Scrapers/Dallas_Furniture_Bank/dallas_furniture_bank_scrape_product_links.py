@@ -15,6 +15,8 @@ import os
 
 # Get the current script's directory
 script_directory = os.path.dirname(os.path.abspath(__file__))
+directory_path = '/Users/perobiora/Desktop/Kashew_Python_Scrapers/Output/'
+file_path = directory_path + 'Dallas_Furniture_Bank.csv'
 
 # Change the working directory to the script's directory
 os.chdir(script_directory)
@@ -45,9 +47,10 @@ for page in range(1, 4):
         print("done scraping link " + item.get_attribute('href'))
 
 # Write the links to a CSV file
-with open('DallasFurnitureLinks.csv', 'w', newline='') as file:
+with open(file_path, 'w', newline='') as file:
     writer = csv.writer(file)
     for link in links:
         writer.writerow([link])
+
 
 

@@ -142,9 +142,31 @@ while True:
             imgs_url.append(url_i)
         imgs_urls.append(imgs_url)
         print(f"Scraped -- {data['name']}")
-popularity_data = {'sku': sku_list,'title': title, 'description': description, 'price': current_price, "retail_price": previous_price, "images": imgs_urls,
-                   "category": main_category, "sub_category": sub_category, "brand": brand_name, "width": width, "height": height, "depth": depth, "location": location}
-dfPOP = pd.DataFrame(popularity_data, columns=['sku','title', 'description', 'price', "retail_price",
-                     "images", "category", "sub_category", "brand", "width", "height", "depth", "location"])
-dfPOP.to_excel(f'{profile}.xlsx', index=False, header=True)
+
+df_data = {
+    "sku": sku_list,
+    "title": title,
+    "description": description,
+    "price": current_price,
+    "retail_price": previous_price,
+    "images": imgs_urls,
+    "category": main_category,
+    "sub_category": sub_category,
+    "brand": brand_name,
+    "width": width,
+    "height": height,
+    "depth": depth,
+    "location": location
+}
+
+df = pd.DataFrame(df_data)
+
+file_name = f"{profile}.csv"
+directory_path = "/Users/perobiora/Desktop/Kashew_Python_Scrapers/Output/"
+
+full_path = directory_path + file_name
+df.to_csv(full_path, index=False, encoding='utf-8')
+
+
+
 print("Done!")

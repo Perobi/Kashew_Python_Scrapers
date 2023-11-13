@@ -4,11 +4,10 @@ from bs4 import NavigableString
 import pandas as pd
 import os
 
-# Get the current script's directory
-script_directory = os.path.dirname(os.path.abspath(__file__))
+directory_path = '/Users/perobiora/Desktop/Kashew_Python_Scrapers/Output/'
+filename = 'Upscale_Consignment.csv'
 
-# Change the working directory to the script's directory
-os.chdir(script_directory)
+full_path = directory_path + filename
 
 titles = []
 descriptions = []
@@ -145,4 +144,5 @@ data = {
 df = pd.DataFrame(data)
 
 # Save the dataframe to a CSV file
-df.to_csv('upscale_consignment.csv', index=False)
+df.to_csv(full_path, index=False)
+print("Done")

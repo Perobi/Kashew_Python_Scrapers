@@ -35,7 +35,7 @@ data = {'title':[], 'sku':[], 'price':[], 'category':[], 'condition':[], 'width'
 
 
 
-for page in range(1, 10):  # We start at 1 and go up to (but not including) 9, so this gives us 1-8
+for page in range(1, 20):  # We start at 1 and go up to (but not including) 9, so this gives us 1-8
     website = website_template.format(page=page)
     driver.get(website)
 
@@ -84,6 +84,7 @@ for url in links:
                 price_el = price_element.find_element("xpath",'//p[@class="wt-text-title-largest wt-mr-xs-1 wt-text-slime"]').text
             currency_value = price_el.split("\n")[1][1:]
             data['price'].append(currency_value)
+            print("price: ", data['price'][-1])
         except:
             data['price'].append("")
             print("failed to get price")
@@ -220,8 +221,10 @@ for url in links:
 # Once the loop is done, convert your dictionary into a pandas DataFrame
 df = pd.DataFrame(data)
 
+file_name = f"{profile}.csv"
+directory_path = "/Users/perobiora/Desktop/Kashew_Python_Scrapers/Output/"
 
-# Finally, write your DataFrame to a CSV file
-df.to_csv('elle_woodworthy_from_etsy.csv', index=False)
-
+full_path = directory_path + file_name
+df.to_csv(full_path, index=False, encoding='utf-8')
+ 
 driver.quit()
