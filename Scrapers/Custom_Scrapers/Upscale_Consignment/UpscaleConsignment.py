@@ -47,10 +47,10 @@ for i in range(1, 17):
         table = soup.find('table', class_='table')
 
         # Title
-        titles.append(product_info.find('h1').text if product_info.find('h1') else 'N/A')
+        titles.append(product_info.find('h1').text if product_info.find('h1') else '')
 
         # Brand
-        brands.append(product_info.find('span', itemprop='name').text if product_info.find('span', itemprop='name') else 'N/A')
+        brands.append(product_info.find('span', itemprop='name').text if product_info.find('span', itemprop='name') else '')
 
         # Description, SKU, Category
         description = ''
@@ -76,7 +76,7 @@ for i in range(1, 17):
 
         # Price
         price_span = product_info.find('span', id='product_price')
-        prices.append(price_span.text.strip() if price_span else 'N/A')
+        prices.append(price_span.text.strip() if price_span else '')
 
         # Images
         thumb_slider_div = soup.find('div', id='thumb_slider')
