@@ -12,7 +12,7 @@ import pandas as pd
 import os
 
 
-directory_path = '/Users/perobiora/Desktop/Kashew_Python_Scrapers/Output/'
+directory_path = '/Users/perobiora/Desktop/Kashew/PythonScraper/Output/'
 filename = 'Dallas_Furniture_Bank.csv'
 
 full_path = directory_path + filename
@@ -43,7 +43,7 @@ website_template = root + "&page={page}"
 
 driver = webdriver.Chrome()  # Initialize the webdriver outside of the loop
 
-for page in range(1, 4):  
+for page in range(1, 3):  
     website = website_template.format(page=page)
     driver.get(website)
 

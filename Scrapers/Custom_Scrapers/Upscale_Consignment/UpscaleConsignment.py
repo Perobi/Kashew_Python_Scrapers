@@ -4,7 +4,7 @@ from bs4 import NavigableString
 import pandas as pd
 import os
 
-directory_path = '/Users/perobiora/Desktop/Kashew_Python_Scrapers/Output/'
+directory_path = '/Users/perobiora/Desktop/Kashew/PythonScraper/Output/'
 filename = 'Upscale_Consignment.csv'
 
 full_path = directory_path + filename

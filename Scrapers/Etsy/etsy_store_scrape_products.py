@@ -16,7 +16,7 @@ import time
 from selenium.webdriver.common.by import By
 
 root = "https://www.etsy.com/shop"
-profile = "/ElleWoodworthy"
+profile = "/VintageLAfurniture"
 website_template = root + profile + "?page={page}#items"
 
 # Initialize Chrome options
@@ -35,13 +35,14 @@ data = {'title':[], 'sku':[], 'price':[], 'category':[], 'condition':[], 'width'
 
 
 
-for page in range(1, 20):  # We start at 1 and go up to (but not including) 9, so this gives us 1-8
+for page in range(1, 35):  # We start at 1 and go up to (but not including) 9, so this gives us 1-8
     website = website_template.format(page=page)
     driver.get(website)
 
-    # Sleep 15 sec
-    time.sleep(2)
-    
+    if page == 1:
+        time.sleep(20)
+
+
     WebDriverWait(driver, 10).until(EC.presence_of_element_located(("xpath", '//div[@class="wt-pr-xs-0 wt-pl-xs-0 shop-home-wider-items wt-pb-xs-5"]')))
     main_container = driver.find_element("xpath", '//div[@class="wt-pr-xs-0 wt-pl-xs-0 shop-home-wider-items wt-pb-xs-5"]')    
     listings_container = main_container.find_element("xpath", '//div[@data-listings-container]')
@@ -49,18 +50,20 @@ for page in range(1, 20):  # We start at 1 and go up to (but not including) 9, s
     
     for value in all_items: 
         links.append(value.find_element("xpath", './/a').get_attribute('href'))
-        parsed_url = urlparse(value.find_element("xpath", './/a').get_attribute('href'))
-        path_parts = parsed_url.path.split('/')
-        
-        if len(path_parts) > 2 and path_parts[1] == 'listing':
-            sku = path_parts[2]
-            data['sku'].append(sku)
+       
             
     
 
 
 
 for url in links: 
+    parsed_url = urlparse(url)
+    path_parts = parsed_url.path.split('/')
+        
+    if len(path_parts) > 2 and path_parts[1] == 'listing':
+        sku = path_parts[2]
+        data['sku'].append(sku)
+        print("sku: ", data['sku'][-1])
     try:
         driver.get(url)
         WebDriverWait(driver, 10).until(EC.presence_of_element_located(("xpath", '//div[@class="body-wrap wt-body-max-width wt-display-flex-md wt-flex-direction-column-xs"]')))
@@ -222,7 +225,7 @@ for url in links:
 df = pd.DataFrame(data)
 
 file_name = f"{profile}.csv"
-directory_path = "/Users/perobiora/Desktop/Kashew_Python_Scrapers/Output/"
+directory_path = "/Users/perobiora/Desktop/Kashew/PythonScraper/Output/"
 
 full_path = directory_path + file_name
 df.to_csv(full_path, index=False, encoding='utf-8')

@@ -18,7 +18,7 @@ except ModuleNotFoundError:
     from urllib3.util.retry import Retry
     from urllib.parse import urlparse
     from bs4 import BeautifulSoup
-profile = "midcenturymobler"
+profile = "vintagelafurniture"
 session = requests.Session()
 retry = Retry(connect=3, backoff_factor=0.5)
 adapter = HTTPAdapter(max_retries=retry)
@@ -162,7 +162,7 @@ df_data = {
 df = pd.DataFrame(df_data)
 
 file_name = f"{profile}.csv"
-directory_path = "/Users/perobiora/Desktop/Kashew_Python_Scrapers/Output/"
+directory_path = "/Users/perobiora/Desktop/Kashew/PythonScraper/Output/"
 
 full_path = directory_path + file_name
 df.to_csv(full_path, index=False, encoding='utf-8')

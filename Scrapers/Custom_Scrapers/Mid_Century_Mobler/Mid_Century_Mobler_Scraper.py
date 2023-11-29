@@ -56,7 +56,7 @@ brand_name = []
 designer = []
 imgs_urls = []
 
-directory_path = "/Users/perobiora/Desktop/Kashew_Python_Scrapers/Output/"
+directory_path = "/Users/perobiora/Desktop/Kashew/PythonScraper/Output/"
 
 for category in categories:
     print(f"Starting category: {category}")
