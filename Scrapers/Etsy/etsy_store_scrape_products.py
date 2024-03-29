@@ -1,46 +1,59 @@
-from selenium import webdriver 
-from selenium.webdriver.support.ui import Select
-
+from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
 from urllib.parse import urlparse
-
-
-
+from fake_useragent import UserAgent
+import random
 import pandas as pd
-
 import time
-
 from selenium.webdriver.common.by import By
+from requests_proxyport import Session  # Importing from requests_proxyport
+from fake_useragent import UserAgent
+
+# List of proxy URLs from your text file
+with open('/Users/perobiora/Desktop/Kashew/PythonScraper/Scrapers/Etsy/us_http_proxies.txt', 'r') as file:
+    proxies = [{'http': proxy, 'https': proxy} for proxy in file.read().splitlines()]
+
+headers = {
+    'User-Agent': UserAgent().random,
+    'Accept-Language': 'en-US,en;q=0.5',
+    'Accept-Encoding': 'gzip, deflate, br',
+    'Connection': 'keep-alive',
+    'Referer': 'https://www.google.com/',
+    'Pragma': 'no-cache',
+    'Cache-Control': 'no-cache'
+
+}
 
 root = "https://www.etsy.com/shop"
-profile = "/VintageLAfurniture"
+profile = "/ellewoodworthy"
 website_template = root + profile + "?page={page}#items"
 
 # Initialize Chrome options
 chrome_options = Options()
+chrome_options.add_argument('--disable-webrtc')
 
-# Add the headless option
-# chrome_options.add_argument()
 
 # Initialize the Chrome driver with the options
 driver = webdriver.Chrome(options=chrome_options)
 
-links = []  # Initialize the links list outside the loop
+session = Session(proxyport_api_key='a0d72032-4d93-4909-b298-54cdee98b570')  # Replace 'your_api_key_here' with your actual API key
 
+links = []  # Initialize the links list outside the loop
 
 data = {'title':[], 'sku':[], 'price':[], 'category':[], 'condition':[], 'width':[], 'height':[], 'depth':[], 'description':[], 'tags':[], 'images':[]}
 
-
-
-for page in range(1, 35):  # We start at 1 and go up to (but not including) 9, so this gives us 1-8
+for page in range(1, 10):  # We start at 1 and go up to (but not including) 9, so this gives us 1-8
     website = website_template.format(page=page)
     driver.get(website)
 
     if page == 1:
-        time.sleep(20)
+        time.sleep(15)
+    else:
+        time.sleep(random.uniform(2, 5)) 
+    
 
 
     WebDriverWait(driver, 10).until(EC.presence_of_element_located(("xpath", '//div[@class="wt-pr-xs-0 wt-pl-xs-0 shop-home-wider-items wt-pb-xs-5"]')))
@@ -52,11 +65,9 @@ for page in range(1, 35):  # We start at 1 and go up to (but not including) 9, s
         links.append(value.find_element("xpath", './/a').get_attribute('href'))
        
             
-    
-
-
-
+count = 0
 for url in links: 
+    time.sleep(random.uniform(2, 5)) 
     parsed_url = urlparse(url)
     path_parts = parsed_url.path.split('/')
         
@@ -82,9 +93,9 @@ for url in links:
         try:
             price_element = listing_container.find_element("xpath",'//div[@data-buy-box-region="price"]')
             try: 
-                price_el = price_element.find_element("xpath",'//p[@class="wt-text-title-largest wt-mr-xs-1 "]').text
+                price_el = price_element.find_element("xpath",'//p[@class="wt-text-title-larger wt-mr-xs-1 "]').text
             except: 
-                price_el = price_element.find_element("xpath",'//p[@class="wt-text-title-largest wt-mr-xs-1 wt-text-slime"]').text
+                price_el = price_element.find_element("xpath",'//p[@class="wt-text-title-larger wt-mr-xs-1 wt-text-slime"]').text
             currency_value = price_el.split("\n")[1][1:]
             data['price'].append(currency_value)
             print("price: ", data['price'][-1])
@@ -214,7 +225,8 @@ for url in links:
         except:
             data['images'].append([])
             print("failed to get images")
-
+        count += 1
+        print ("finished scraping ", count, " of ", len(links))
         print("done scraping listing title: ", data['title'][-1])
 
     except Exception as e:

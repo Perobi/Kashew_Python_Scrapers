@@ -18,7 +18,7 @@ except ModuleNotFoundError:
     from urllib3.util.retry import Retry
     from urllib.parse import urlparse
     from bs4 import BeautifulSoup
-profile = "vintagelafurniture"
+profile = "maisonlobo"
 session = requests.Session()
 retry = Retry(connect=3, backoff_factor=0.5)
 adapter = HTTPAdapter(max_retries=retry)
