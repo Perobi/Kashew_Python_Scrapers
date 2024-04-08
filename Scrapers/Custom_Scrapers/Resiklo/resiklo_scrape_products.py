@@ -4,6 +4,8 @@ from bs4 import BeautifulSoup
 import csv
 import json
 import re
+import csv
+
 
 
 def extract_core_dimensions(dimension_text):
@@ -63,7 +65,6 @@ def make_request_with_retry(url, max_attempts=5, delay=5):
 
 # Base URL for constructing full item URLs
 base_url = 'https://resiklodesign.com'
-
 # Fetch the initial JSON data
 url = 'https://tools.squarewebsites.org/sqs-response/resiklodesign-com/page-context/shop.js?ver=2024-03-29T16-5'
 response = requests.get(url)
@@ -85,7 +86,8 @@ for item in items:
         'depth': None,
         'height': None,
         'tags': [],
-        'images': []
+        'images': [],
+        'quantity': None,
     }
     
     full_url = base_url + item.get('fullUrl', '')
@@ -110,7 +112,8 @@ for item in items:
                 item_data['sku'] = variant["sku"]
                 item_data['price'] = variant["salePrice"]["value"] / 100
                 item_data['retail_price'] = variant["price"]["value"] / 100
-        
+                # "stock":{"unlimited":false,"quantity":1}
+                item_data['quantity'] = variant.get("stock", {}).get("quantity")
         # Extract description
         description_div = soup.find("div", {"class": "ProductItem-details-excerpt"})
         if description_div:
@@ -147,16 +150,23 @@ for item in items:
         # Handling non-200 responses for each item
         print(f"Failed to retrieve item at {full_url}. Status code: {item_response.status_code}")    
 # Writing data to CSV
-csv_columns = ['title', 'sku', 'price', 'retail_price', 'description', 'width', 'depth', 'height', 'tags', 'images']
-csv_file = "items_data.csv"
+
+directory_path = "/Users/perobiora/Desktop/Kashew/PythonScraper/Output/"
+csv_file = "Resiklo_CSV.csv"
+full_path = directory_path + csv_file  # Concatenate to get the full file path
+
+csv_columns = ['title', 'sku', 'quantity', 'price', 'retail_price', 'description', 'width', 'depth', 'height', 'tags', 'images']
+
 try:
-    with open(csv_file, 'w', newline='', encoding='utf-8') as csvfile:
+    with open(full_path, 'w', newline='', encoding='utf-8') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=csv_columns)
         writer.writeheader()
-        for data in all_items_data:
+        for data in all_items_data:  # Ensure all_items_data is defined and populated with your data dictionaries
             # Convert lists to strings for CSV output
-            data['tags'] = ', '.join(data['tags'])
-            data['images'] = ', '.join(data['images'])
+            if 'tags' in data and isinstance(data['tags'], list):
+                data['tags'] = ', '.join(data['tags'])
+            if 'images' in data and isinstance(data['images'], list):
+                data['images'] = ', '.join(data['images'])
             writer.writerow(data)
 except IOError:
     print("I/O error")
