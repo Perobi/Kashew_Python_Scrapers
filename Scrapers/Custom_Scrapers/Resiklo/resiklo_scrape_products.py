@@ -92,63 +92,68 @@ for item in items:
     
     full_url = base_url + item.get('fullUrl', '')
     item_response = make_request_with_retry(full_url)
-    if item_response.status_code == 200:
-        soup = BeautifulSoup(item_response.content, 'html.parser')
-        
-        # Extract title
-        title_tag = soup.find("h1", {"class": "ProductItem-details-title"})
-        if title_tag:
-            item_data['title'] = title_tag.get_text(strip=True)
-        
-        # Extract SKU, price, and more from JSON embedded in script tag
-        script_tag = soup.find('script', string=re.compile('Static.SQUARESPACE_CONTEXT'))
-        if script_tag:
-            script_content = script_tag.string
-            json_object_match = re.search(r'Static.SQUARESPACE_CONTEXT = ({.*?});', script_content, re.DOTALL)
-            if json_object_match:
-                json_str = json_object_match.group(1)
-                json_data = json.loads(json_str)
-                variant = json_data["product"]["variants"][0]
-                item_data['sku'] = variant["sku"]
-                item_data['price'] = variant["salePrice"]["value"] / 100
-                item_data['retail_price'] = variant["price"]["value"] / 100
-                # "stock":{"unlimited":false,"quantity":1}
-                item_data['quantity'] = variant.get("stock", {}).get("quantity")
-        # Extract description
-        description_div = soup.find("div", {"class": "ProductItem-details-excerpt"})
-        if description_div:
-            item_data['description'] = description_div.get_text(strip=True)
-        
-        # Extract dimensions
-        dimension_text = soup.find(text=re.compile(r'Dimensions:'))
-        if dimension_text:
-            dimensions = extract_core_dimensions(dimension_text)
-            if dimensions:
-                item_data.update(dimensions)
-        
-        # Extract tags
-        article = soup.find('article', class_='ProductItem')
-        if article:
-            classes = article.get('class', [])
-            for class_name in classes:
-                if class_name.startswith('tag-'):
-                    item_data['tags'].append(class_name[len('tag-'):])
-        
-        # Extract image URLs
-        image_elements = soup.find_all("img", {"class": "ProductItem-gallery-thumbnails-item-image"})
-        for img in image_elements:
-            image_url = img.get('data-src')
-            if image_url:
-                item_data['images'].append(image_url)
-        
-        all_items_data.append(item_data)
-        print(f"Processed item: {item_data['title']}")
-        print( 
-            str(len(all_items_data)) + "of" + str(len(items)) + " items processed")
-        print ("title : " + item_data['title'])
+    if item_response is not None:
+
+        if item_response.status_code == 200:
+            soup = BeautifulSoup(item_response.content, 'html.parser')
+            
+            # Extract title
+            title_tag = soup.find("h1", {"class": "ProductItem-details-title"})
+            if title_tag:
+                item_data['title'] = title_tag.get_text(strip=True)
+            
+            # Extract SKU, price, and more from JSON embedded in script tag
+            script_tag = soup.find('script', string=re.compile('Static.SQUARESPACE_CONTEXT'))
+            if script_tag:
+                script_content = script_tag.string
+                json_object_match = re.search(r'Static.SQUARESPACE_CONTEXT = ({.*?});', script_content, re.DOTALL)
+                if json_object_match:
+                    json_str = json_object_match.group(1)
+                    json_data = json.loads(json_str)
+                    variant = json_data["product"]["variants"][0]
+                    item_data['sku'] = variant["sku"]
+                    item_data['price'] = variant["salePrice"]["value"] / 100
+                    item_data['retail_price'] = variant["price"]["value"] / 100
+                    # "stock":{"unlimited":false,"quantity":1}
+                    item_data['quantity'] = variant.get("stock", {}).get("quantity")
+            # Extract description
+            description_div = soup.find("div", {"class": "ProductItem-details-excerpt"})
+            if description_div:
+                item_data['description'] = description_div.get_text(strip=True)
+            
+            # Extract dimensions
+            dimension_text = soup.find(text=re.compile(r'Dimensions:'))
+            if dimension_text:
+                dimensions = extract_core_dimensions(dimension_text)
+                if dimensions:
+                    item_data.update(dimensions)
+            
+            # Extract tags
+            article = soup.find('article', class_='ProductItem')
+            if article:
+                classes = article.get('class', [])
+                for class_name in classes:
+                    if class_name.startswith('tag-'):
+                        item_data['tags'].append(class_name[len('tag-'):])
+            
+            # Extract image URLs
+            image_elements = soup.find_all("img", {"class": "ProductItem-gallery-thumbnails-item-image"})
+            for img in image_elements:
+                image_url = img.get('data-src')
+                if image_url:
+                    item_data['images'].append(image_url)
+            
+            all_items_data.append(item_data)
+            print(f"Processed item: {item_data['title']}")
+            print( 
+                str(len(all_items_data)) + "of" + str(len(items)) + " items processed")
+            print ("title : " + item_data['title'])
+        else:
+            # Handling non-200 responses for each item
+            print(f"Failed to retrieve item at {full_url}. Status code: {item_response.status_code}")  
     else:
-        # Handling non-200 responses for each item
-        print(f"Failed to retrieve item at {full_url}. Status code: {item_response.status_code}")    
+        print(f"Failed to retrieve item at {full_url}. No response received")
+        # Optionally handle the case where no response is received for an item          
 # Writing data to CSV
 
 directory_path = "/Users/perobiora/Desktop/Kashew/PythonScraper/Output/"
