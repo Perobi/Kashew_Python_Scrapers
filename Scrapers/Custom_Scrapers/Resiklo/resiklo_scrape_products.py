@@ -156,7 +156,7 @@ for item in items:
         # Optionally handle the case where no response is received for an item          
 # Writing data to CSV
 
-directory_path = "/Users/perobiora/Desktop/Kashew/PythonScraper/Output/"
+directory_path = "/Users/perobiora/Desktop/Kashew/Kashew_Python_Scrapers/Output/"
 csv_file = "Resiklo_CSV.csv"
 full_path = directory_path + csv_file  # Concatenate to get the full file path
 

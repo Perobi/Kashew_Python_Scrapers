@@ -19,9 +19,8 @@ except ModuleNotFoundError:
     from urllib.parse import urlparse
     from bs4 import BeautifulSoup
 
-directory_path = "/Users/perobiora/Desktop/Kashew/PythonScraper/Output/"
-profiles = ["4kqk0w", "maisonlobo", "rusticodecor", "eclecticcollective", "designplus"]
-# profiles = ["designplus"]
+directory_path = "/Users/perobiora/Desktop/Kashew/Kashew_Python_Scrapers/Output/"
+# profiles = ["4kqk0w", "maisonlobo", "rusticodecor", "eclecticcollective", "designplus", "ata"]
 
 session = requests.Session()
 retry = Retry(connect=3, backoff_factor=0.5)
