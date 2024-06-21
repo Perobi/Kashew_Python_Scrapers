@@ -290,9 +290,11 @@ df = pd.DataFrame({
     'weight': weight,
     'tags': tags,
     'quantity': quantity,
-
-
 })
+
+# remove rows with quantity less than 1
+df = df[df['quantity'] > 0]
+
 
 # Save the DataFrame to a CSV file
 output_file = os.path.join(directory_path, "modern_resale.csv")
