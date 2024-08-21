@@ -58,6 +58,7 @@ tags = []
 brand_name = []
 designer = []
 imgs_urls = []
+quantity = []
 
 
 def extract_core_dimensions(dimension_text):
@@ -149,6 +150,7 @@ for url in list(unique_urls):
     # with open(full_path, 'w') as file:
     #     file.write(response.text)
     # print(f"HTML content saved to {full_path}")
+    
 
     if response.status_code == 200:
         soup = BeautifulSoup(response.text, 'html.parser')
@@ -173,6 +175,7 @@ for url in list(unique_urls):
             retail_price.append(original_price_amount)
         else:
             retail_price.append("")
+            
 
         # Extract sale price
         sale_price = soup.find('meta', {'property': 'product:sale_price:amount'})
@@ -187,6 +190,22 @@ for url in list(unique_urls):
                 price.append(sale_price_amount)
             else:
                 price.append("")
+
+        # Find the script tag
+        quantity_script = soup.find('script', attrs={'data-name': 'static-context'})
+
+        if quantity_script:
+            # Extract the script content as text
+            script_content = quantity_script.string
+            
+            # Use regex to find the "quantity" value in the script content
+            match = re.search(r'"quantity":(\d+)', script_content)
+            
+            if match:
+                qt = int(match.group(1))
+                quantity.append(qt)
+            else:
+                quantity.append(0)
 
         # Extract SKU from JSON LD script tags
         script_tags = soup.find_all('script', type='application/ld+json')
@@ -211,6 +230,7 @@ for url in list(unique_urls):
         # Extract images
         img_urls = []
         image_div = soup.find('div', class_='ProductItem-gallery-thumbnails')
+
         if image_div:
             images = image_div.find_all('img')
             img_urls = [img.get('data-image') for img in images if img.get('data-image')]
@@ -220,7 +240,11 @@ for url in list(unique_urls):
                 images = image_div.find_all('img')
                 img_urls = [img.get('data-image') for img in images if img.get('data-image')]
 
-        imgs_urls.append(img_urls)  # Append list of image URLs to images_list
+        # Convert the list of URLs to a comma-separated string
+        img_urls_str = ','.join(img_urls)
+
+        # Now append the string to the images_list (or however you want to store it)
+        imgs_urls.append(img_urls_str)  # Append the comma-separated URLs as a string
 
 
         # description  <meta content='30" D x 29.5" H' itemprop="description"/>
@@ -268,6 +292,7 @@ print(f"Length of description: {len(description)}")
 print(f"Length of width: {len(width)}")
 print(f"Length of height: {len(height)}")
 print(f"Length of depth: {len(depth)}")
+print(f"Length of quantity: {len(quantity)}")
 print(f"Length of images: {len(imgs_urls)}")
 
 
@@ -278,6 +303,7 @@ df_data = {
     'sku': sku,
     'price': price,
     'retail_price': retail_price,
+    'quantity': quantity,
     'description': description,
     'width': width,
     'height': height,
