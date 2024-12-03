@@ -75,9 +75,10 @@ for profile in profiles:
     imgs_urls = []
     tags = []
     seat_height = []
+    condition = []
     it = 1
 
-    while it < 2:
+    while True:
         # Fetch the page content
         response = get_with_retries(
             f"https://www.1stdibs.com/dealers/{profile}/shop/?page={it}&sort=newest",
@@ -135,6 +136,25 @@ for profile in profiles:
                 description.append("")
 
 
+            # condition
+            try:
+                condition_tag = soup2.find("span", {"data-tn": "pdp-spec-detail-condition"})
+                condition_text = condition_tag.get_text(strip=True) if condition_tag else ""
+                if condition_text == "New":
+                    condition.append("Excellent")
+                elif condition_text == "Excellent":
+                    condition.append("Very Good")
+                elif condition_text == "Good":
+                    condition.append("Good")
+                elif condition_text == "Fair":
+                    condition.append("Fair")
+                elif condition_text == "Distressed":
+                    condition.append("Fair")
+                else: 
+                    condition.append("Good")
+            except Exception as e:
+                condition = f"Error extracting condition: {e}"
+                condition.append("")
             #  SKU 
             try:
                 sku_num = url.split("id-a_")[1].split("/")[0] 
@@ -281,7 +301,7 @@ for profile in profiles:
                 date_of_manufacture_tag = soup2.find("span", {"data-tn": "pdp-spec-detail-dateOfManufacture"})
                 if date_of_manufacture_tag:
                     date_of_manufacture_text = date_of_manufacture_tag.get_text(strip=True)
-                    tag_list.append(f"Created in {date_of_manufacture_text}")  # Append the formatted date
+                    tag_list.append(f"Date of Manufacture: {date_of_manufacture_text}")  # Append the formatted date
             except Exception as e:
                 print(f"Error extracting date of manufacture: {e}")
                 tag_list.append("")  # Append default in case of error
@@ -362,7 +382,9 @@ for profile in profiles:
            "Length of brand_name: ", len(brand_name), 
            "Length of imgs_urls: ", len(imgs_urls), 
            "Length of tags: ", len(tags), 
-           "Length of seat_height: ", len(seat_height),)
+           "Length of seat_height: ", len(seat_height),
+           "Length of condition: ", len(condition),
+           )
 
     df_data = {
         "sku": sku_list,
@@ -378,7 +400,8 @@ for profile in profiles:
         "depth": depth,
         "material": material,
         "style": style,
-        "tags": tags
+        "tags": tags,
+        "condition": condition
 
     }
 
