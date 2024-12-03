@@ -74,9 +74,10 @@ for profile in profiles:
     brand_name = []
     imgs_urls = []
     tags = []
+    seat_height = []
     it = 1
 
-    while True:
+    while it < 2:
         # Fetch the page content
         response = get_with_retries(
             f"https://www.1stdibs.com/dealers/{profile}/shop/?page={it}&sort=newest",
@@ -115,10 +116,6 @@ for profile in profiles:
                 continue  # Skip to the next URL if the request failed
 
             soup2 = BeautifulSoup(response2.text, "html.parser")
-            # with open('respons1e.html', 'w', encoding='utf-8') as file:
-            #     file.write(response2.text)
-
-
             #Extract title
             try:
                 title_tag = soup2.find("span", {"class": "_4a80dd6a", "data-tn": "pdp-item-title"})
@@ -199,6 +196,16 @@ for profile in profiles:
                     depth_value = 1  # Default if not found
                 depth.append(depth_value)
 
+                # extract_seat_height
+                seat_height_span = dimensions_div.find("span", {"data-tn": "pdp-spec-detail-secondaryHeight"})
+                if seat_height_span:
+                    seat_height_text = seat_height_span.get_text(strip=True)
+                    seat_height_value = float(seat_height_text.split(" in")[0].split(":")[1].strip())
+                else:
+                    seat_height_value = ""
+                seat_height.append(seat_height_value)
+            
+
                 # Print extracted values for debugging
 
             except Exception as e:
@@ -209,7 +216,6 @@ for profile in profiles:
                 depth.append(1)
 
             # Brand extraction and appending to brand_name
-
             try:
                 brand_tag = soup2.find("span", {"data-tn": "pdp-spec-detail-creator"})
                 brand_text = brand_tag.get_text(strip=True) if brand_tag else ""
@@ -217,9 +223,9 @@ for profile in profiles:
             except Exception as e:
                 print(f"Error extracting brand: {e}")
                 brand_name.append("")
-
-
+    
             # Material extraction and appending to material list
+            materials_list = []
             try:
                 materials_div = soup2.find("div", {"data-tn": "pdp-spec-medium"})
                 if materials_div:
@@ -227,14 +233,27 @@ for profile in profiles:
                     material_links = materials_div.find_all("a", {"class": "_1862016c _57a9be25"})
                     materials = [link.get_text(strip=True) for link in material_links]
                 else:
-                    materials = [""]  # Default if not found
-                material.append(", ".join(materials))  # Append materials as a comma-separated string
-
-                # Print extracted materials for debugging
-
+                    materials = [""]
+                materials_list.append(", ".join(materials))  # Append materials as a comma-separated string
             except Exception as e:
-                print(f"Error extracting materials: {e}")
-                material.append("")  # Append default in case of error
+                print(f"Error extracting materials from 'pdp-spec-medium': {e}")
+                materials_list.append("")  # Append default in case of error
+
+            # More materials
+            try:
+                materials_div = soup2.find("span", {"data-tn": "pdp-spec-materials-and-techniques"})
+                if materials_div:
+                    # Find all material spans or links within the container
+                    material_links = materials_div.find_all("a", {"class": "_1862016c _57a9be25"})
+                    materials = [link.get_text(strip=True) for link in material_links]
+                else:
+                    materials = [""]
+                materials_list.append(", ".join(materials))  # Append materials as a comma-separated string
+            except Exception as e:
+                print(f"Error extracting materials from 'pdp-spec-materials-and-techniques': {e}")
+                materials_list.append("")  # Append default in case of error
+
+            material.append(", ".join(materials_list))    
 
             # Style extraction and appending to style list
             try:
@@ -279,11 +298,23 @@ for profile in profiles:
                 print(f"Error extracting period: {e}")
                 tag_list.append("")  # Append default in case of error
 
+
+           #country of origin
+            try:
+                origin_tag = soup2.find("span", {"data-tn": "pdp-spec-detail-origin"})
+                if origin_tag:
+                    origin_link = origin_tag.find("a", {"class": "_1862016c _57a9be25"})
+                    if origin_link:
+                        origin_text = origin_link.get_text(strip=True)
+                        tag_list.append(f"Place of Origin: {origin_text}")  # Append the period text
+            except Exception as e:
+                print(f"Error extracting period: {e}")
+                tag_list.append("")  # Append default in case of error
+
             tags.append(
                 # join the tag list with a comma and space
                 ", ".join(tag_list)
             )  # Append tags as a comma-separated string
-
 
             # Image extraction from buttons containing <noscript> tags
             image_buttons = soup2.find_all("button", {"data-tn": True})
@@ -330,7 +361,8 @@ for profile in profiles:
            "Length of style: ", len(style), 
            "Length of brand_name: ", len(brand_name), 
            "Length of imgs_urls: ", len(imgs_urls), 
-           "Length of tags: ", len(tags))
+           "Length of tags: ", len(tags), 
+           "Length of seat_height: ", len(seat_height),)
 
     df_data = {
         "sku": sku_list,
@@ -342,6 +374,7 @@ for profile in profiles:
         "brand": brand_name,
         "width": width,
         "height": height,
+        "seat_height": seat_height,
         "depth": depth,
         "material": material,
         "style": style,
